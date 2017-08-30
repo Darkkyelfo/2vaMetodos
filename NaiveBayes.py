@@ -38,20 +38,20 @@ class NaiveBayes(object):
             if(modo == "m"):
                 if(NaiveBayes.__px(m1,v1,x)>NaiveBayes.__px(m2,v2,x)):
                     if(base.classes[i] != classes[0]):
-                        #base.classes[i] = classes[0]
+                        base.classes[i] = classes[0]
                         erro = erro + 1
                 else:
                     if(base.classes[i] != classes[1]):
-                       # base.classes[i] = classes[1]
+                        base.classes[i] = classes[1]
                         erro = erro + 1
             if(modo=="u"):
                 if(NaiveBayes.__pxu(m1,v1,x)>NaiveBayes.__pxu(m2,v2,x)):
                     if(base.classes[i] != classes[0]):
-                        #base.classes[i] = classes[0]
+                        base.classes[i] = classes[0]
                         erro = erro + 1
                 else:
                     if(base.classes[i] != classes[1]):
-                        #base.classes[i] = classes[1]
+                        base.classes[i] = classes[1]
                         erro = erro + 1
         return float(erro/len(base.classes))
     
@@ -63,16 +63,20 @@ class NaiveBayes(object):
             if(modo=="g"): #janela gausinana
                 if(JanelaDeParzen.gausiano(baseC1, x, h) > JanelaDeParzen.gausiano(baseC2, x, h)):
                     if(base.classes[i] != classes[0]):
+                        base.classes[i] = classes[0]
                         erro = erro + 1
                 else:
                     if(base.classes[i] != classes[1]):
+                        base.classes[i] = classes[1]
                         erro = erro + 1
             if(modo == "r"):
                 if(JanelaDeParzen.retangular(baseC1, x, h) > JanelaDeParzen.retangular(baseC2, x, h)):
                     if(base.classes[i] != classes[0]):
+                        base.classes[i] = classes[0]
                         erro = erro + 1
                 else:
                     if(base.classes[i] != classes[1]):
+                        base.classes[i] = classes[1]
                         erro = erro + 1
         return erro/(len(base.classes))
         

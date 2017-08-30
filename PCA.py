@@ -25,7 +25,7 @@ def pca (base,k=0):
     novosAtributos = np.dot(subtracao,np.array(autoVectors).T)
     return (Base(base.classes,novosAtributos))
 
-def pcaScore(base,k=0,classes=[]):
+def pcaScore(base,k=0):
     media = np.mean(np.array(base.atributos),axis=0)
     subtracao = np.array(copy.deepcopy(base.atributos))
     #cria a matriz de subtração
@@ -35,15 +35,12 @@ def pcaScore(base,k=0,classes=[]):
     
     cov = (1/len(media))*np.dot(subtracao.T,subtracao)
     autoValues,autoVectors = np.linalg.eig(cov)
-    #autoValues,autoVectors = zip(*sorted(zip(autoValues, autoVectors ),reverse=True))
-    #autoVectors = autoVectors[0:len(base.atributos[0])]
-    #autoValues = autoValues[0:len(base.atributos[0])]
-    #novosAtributos = np.dot(subtracao,np.array(autoVectors).T)
-    m1,m2 = separarElementosPorClasse(base,classes)
+    m1,m2 = separarElementosPorClasse(base,base.classes)
     m1 = np.mean(m1, axis=0)
     m2 = np.mean(m2, axis=0)
     scores = score(m1, m2, autoValues)
     scores,autoVectors = zip(*sorted(zip(scores, autoVectors ),reverse=True))
+    autoVectors = autoVectors[0:len(base.atributos[0])-k]
     novosAtributos = np.dot(subtracao,np.array(autoVectors).T)
     return (Base(base.classes,novosAtributos))
 

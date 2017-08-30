@@ -13,6 +13,8 @@ class KnnComHamming(object):
     @staticmethod
     def calcular(base,k=1):
         erroKnn = 0
+        classePred = []
+        classeCerta = []
         for i,e in enumerate(base.atributos):
             selecionado = [base.classes[i],e]
             del base.atributos[i]
@@ -31,10 +33,12 @@ class KnnComHamming(object):
                         qtMaisApareceu = cont
                         classe = i[2]
             erroKnn = (1-accuracy_score([selecionado[0]],[classe])) + erroKnn
-            selecionado[0] = classe
+            classePred.append(classe)
+            classeCerta.append(selecionado[0])
+            #selecionado[0] = classe
             base.classes.append(selecionado[0])
             base.atributos.append(selecionado[1])
-        return float(erroKnn/len(base.classes))
+        return float(erroKnn/len(base.classes)),classePred,classeCerta
                 
     @staticmethod
     def distanciaHamming(atr1,atr2):

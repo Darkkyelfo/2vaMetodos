@@ -9,6 +9,7 @@ from numba import jit
 import numpy as np
 import copy
 from Base import Base
+from sklearn.metrics import accuracy_score
 #Classificador knn para atributos numéricos
 def classicarKNN(base,n=1):
     knn = KNeighborsClassifier(n_neighbors=n)
@@ -16,16 +17,24 @@ def classicarKNN(base,n=1):
     loo = LeaveOneOut()
     X = np.array(base.atributos)
     y = np.array(base.classes)
+    classesAchadas = []
+    classeCerta = []
     for train_index, test_index in loo.split(X):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         knn.fit(X_train,y_train)
         knnPredict = knn.predict(X_test)
-        #erroKnn = (1-accuracy_score(y_test,knnPredict)) + erroKnn
+        erroKnn = (1-accuracy_score(y_test,knnPredict)) + erroKnn
+        classesAchadas.append(knnPredict[0])
+        classeCerta.append(y_test[0])
+        '''
         for i,e in enumerate(knnPredict):
+            
             if(e!=y_test[i]):
                 erroKnn = erroKnn + 1
-    return erroKnn/len(base.classes)
+            classesAchadas.append(e)
+        '''
+    return erroKnn/len(base.atributos),classesAchadas,classeCerta
 
 #Função responsável por discretizar os valores númericos
 #de uma base
