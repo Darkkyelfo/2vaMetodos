@@ -3,61 +3,29 @@ Created on Aug 13, 2017
 
 @author: raul
 '''
+from funcoesAuxiliares import *
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import LeaveOneOut
-from sklearn.metrics import accuracy_score
 from SepararBase import SepararBase
 from Base import Base
-from numba import jit
 from knnComHamming import KnnComHamming
 from NaiveBayes import NaiveBayes
 from sklearn.neighbors.kde import KernelDensity
+from JanelaDeParzen import JanelaDeParzen
+from PCA import pca, pcaScore
 import copy
-#Classificador knn para atributos numéricos
-def classicarKNN(base,n=1):
-    knn = KNeighborsClassifier(n_neighbors=n)
-    erroKnn = 0
-    loo = LeaveOneOut()
-    X = np.array(base.atributos)
-    y = np.array(base.classes)
-    for train_index, test_index in loo.split(X):
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-        knn.fit(X_train,y_train)
-        knnPredict = knn.predict(X_test)
-        erroKnn = (1-accuracy_score(y_test,knnPredict)) + erroKnn
-    return erroKnn/len(baseCancer.classes)
 
-#Função responsável por discretizar os valores númericos
-#de uma base
-@jit
-def discretizacao(base,intervalo=2):
-    colunas = np.transpose(base.atributos)
-    dic = {}
-    inter = []
-    c = copy.deepcopy(base.classes)
-    a = copy.deepcopy(base.atributos)
-    baseDiscretizada = Base(c,a)
-    for i,atr in enumerate(colunas):
-        dic[i] = [max(atr),min(atr)]
-    for e in dic:
-        inter.append(float((dic[e][0]-dic[e][1])/(intervalo-1)))
-    for j in range(len(baseDiscretizada.atributos[0])):
-        for i in range(len(baseDiscretizada.atributos)):
-            baseDiscretizada.atributos[i][j] =  int((baseDiscretizada.atributos[i][j] - dic[j][1])/inter[j])
-    return baseDiscretizada
-
-@jit
-def separarElementosPorClasse(base,classes):
-    m1 = []
-    m2 = []
-    for i,e in enumerate(base.classes):
-        if(e==classes[0]):
-            m1.append(base.atributos[i])
-        else:
-            m2.append(base.atributos[i])
-    return m1,m2
+def classificarNaiveDiscreto(base,classes,intervalos):
+    for e in intervalos:
+        try:
+            b = discretizacao(base, e)
+            m1,m2 = separarElementosPorClasse(b, classes)
+            v1 = np.cov(np.array(m1).T)
+            v2 = np.cov(np.array(m2).T)
+            m1 = np.mean(m1, axis=0)
+            m2 = np.mean(m2, axis=0)
+            print("intervalo:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2, b, classes)))
+        except:
+            print("não possivel para o intervalo:%s"%e)
             
 arq = open("cancer","r")
 
@@ -101,46 +69,38 @@ print("erro base wpdc:%s"%classicarKNN(baseWpdc))
 #Q2
 baseCancer2 = Base(copy.deepcopy(cancerOri.classes),copy.deepcopy(cancerOri.atributos))
 m1,m2 = separarElementosPorClasse(baseCancer2, ["2","4"])
-v1 = np.var(m1)
-v2 = np.var(m2)
+v1 = np.cov(np.array(m1).T)
+v2 = np.cov(np.array(m2).T)
+#v1 = np.var(m1)
+#v2 = np.var(m2)
+
 m1 = np.mean(m1, axis=0)
 m2 = np.mean(m2, axis=0)
-print("erro naiveBayes:%s"%NaiveBayes.classificar(m1, m2, v1, v2, baseCancer2, ["2","4"]))
+print("erro naiveBayes cancer:%s"%NaiveBayes.classificar(m1, m2, v1, v2, baseCancer2, ["2","4"]))
 #Q3
 b = Base(copy.deepcopy(wbdcOri.classes),copy.deepcopy(wbdcOri.atributos))
 m1,m2 = separarElementosPorClasse(b, ["M","B"])
-v1 = np.var(m1)
-v2 = np.var(m2)
+v1 = np.cov(np.array(m1).T)
+v2 = np.cov(np.array(m2).T)
 m1 = np.mean(m1, axis=0)
 m2 = np.mean(m2, axis=0)
-print("Sem discretizacao - erro:%s"%(NaiveBayes.classificar(m1, m2, v1, v2, b, ["M","B"])))
+print("Sem discretizacao wbdc- erro:%s"%(NaiveBayes.classificar(m1, m2, v1, v2, b, ["M","B"])))
 intervalos = [ 2, 4,8, 16, 32, 64, 128, 256]
 print("erro discretizacao wbdc - NAIVEBAYES")
-for e in intervalos:
-    b = discretizacao(wbdcOri, e)
-    m1,m2 = separarElementosPorClasse(b, ["M","B"])
-    v1 = np.var(m1)
-    v2 = np.var(m2)
-    m1 = np.mean(m1, axis=0)
-    m2 = np.mean(m2, axis=0)
-    print("intervalo:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2, b, ["M","B"])))
+classificarNaiveDiscreto(wbdcOri, ["M","B"], intervalos)
+#Wpdc sem discretizaçao      
 b = Base(copy.deepcopy(WpdcOri.classes),copy.deepcopy(WpdcOri.atributos))
 m1,m2 = separarElementosPorClasse(b, ["N","R"])
-v1 = np.var(m1)
-v2 = np.var(m2)
+v1 = np.cov(np.array(m1).T)
+v2 = np.cov(np.array(m2).T)
 m1 = np.mean(m1, axis=0)
 m2 = np.mean(m2, axis=0)
 print("Sem discretizacao wpdc - erro:%s"%(NaiveBayes.classificar(m1, m2, v1, v2, b,["N","R"])))
+
 print("erro discretizacao wpdc - NAIVEBAYES")
-for e in intervalos:
-    b = discretizacao(WpdcOri, e)
-    m1,m2 = separarElementosPorClasse(b, ["N","R"])
-    v1 = np.var(m1)
-    v2 = np.var(m2)
-    m1 = np.mean(m1, axis=0)
-    m2 = np.mean(m2, axis=0)
-    print("intervalo:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2, b,["N","R"])))
+classificarNaiveDiscreto(WpdcOri,["N","R"], intervalos)
 #Q5
+'''
 h = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
 X = wbdcOri.atributos
 print("janela de pazen gaussian - wbdc")
@@ -152,7 +112,7 @@ for i in h:
     v2 = np.var(m2)
     m1 = np.mean(m1, axis=0)
     m2 = np.mean(m2, axis=0)
-    print("h:%s - erro:%s"%(i,NaiveBayes.classificar(m1, m2, v1, v2, bWbdcPazen, ["M","B"])))
+    print("h:%s - erro:%s"%(i,NaiveBayes.classificar(m1, m2, v1, v2, bWbdcPazen, ["M","B"],"u")))
 print("janela de pazen gaussian - wpdc")
 X = WpdcOri.atributos
 for e in h:
@@ -163,7 +123,7 @@ for e in h:
     v2 = np.var(m2)
     m1 = np.mean(m1, axis=0)
     m2 = np.mean(m2, axis=0)
-    print("h:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2,bWbdcPazen,["N","R"])))
+    print("h:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2,bWbdcPazen,["N","R"],"u")))
 #Q4
 print("janela de pazen retângular - wbdc")
 X = WpdcOri.atributos
@@ -175,4 +135,36 @@ for e in h:
     v2 = np.var(m2)
     m1 = np.mean(m1, axis=0)
     m2 = np.mean(m2, axis=0)
-    print("h:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2,bWbdcPazen,["N","R"])))
+    print("h:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2,bWbdcPazen,["N","R"],"u")))
+b = pcaScore(cancerOri,0,["2","4"])
+b1 = pca(WpdcOri,0)
+b2 = pca(wbdcOri)
+print("erro base cancer(EuclidianaPCA):%s"%classicarKNN(b))
+'''
+
+h = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
+m1,m2 = separarElementosPorClasse2(wbdcOri, ["M","B"])
+mp1,mp2 = separarElementosPorClasse2(WpdcOri, ["N","R"])
+print("naive com janela de pazen gausinana - wbdc")
+for i in h:
+    print("h:%s erro:%s"%(i,NaiveBayes.classificarParzen(wbdcOri, m1, m2, i, ["M","B"])))
+print("naive com janela de pazen gausinana - wpdc")
+for i in h:
+    print("h:%s erro:%s"%(i,NaiveBayes.classificarParzen(WpdcOri, mp1, mp2, i, ["N","R"])))
+
+print("naive com janela de parzen retangular - wbdc")
+for i in h:
+    print("h:%s erro:%s"%(i,NaiveBayes.classificarParzen(wbdcOri, m1, m2, i, ["M","B"],"r")))
+print("naive com janela de parzen retangular - wpdc")
+for i in h:
+    print("h:%s erro:%s"%(i,NaiveBayes.classificarParzen(WpdcOri, mp1, mp2, i, ["N","R"])))
+
+
+
+
+
+
+
+
+
+
