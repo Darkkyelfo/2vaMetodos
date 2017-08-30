@@ -43,7 +43,7 @@ def pcaScore(base,k=0,classes=[]):
     m1 = np.mean(m1, axis=0)
     m2 = np.mean(m2, axis=0)
     scores = score(m1, m2, autoValues)
-    autoValues,scores = zip(*sorted(zip(scores, autoVectors ),reverse=True))
+    scores,autoVectors = zip(*sorted(zip(scores, autoVectors ),reverse=True))
     novosAtributos = np.dot(subtracao,np.array(autoVectors).T)
     return (Base(base.classes,novosAtributos))
 

@@ -9,8 +9,6 @@ from SepararBase import SepararBase
 from Base import Base
 from knnComHamming import KnnComHamming
 from NaiveBayes import NaiveBayes
-from sklearn.neighbors.kde import KernelDensity
-from JanelaDeParzen import JanelaDeParzen
 from PCA import pca, pcaScore
 import copy
 
@@ -100,47 +98,6 @@ print("Sem discretizacao wpdc - erro:%s"%(NaiveBayes.classificar(m1, m2, v1, v2,
 print("erro discretizacao wpdc - NAIVEBAYES")
 classificarNaiveDiscreto(WpdcOri,["N","R"], intervalos)
 #Q5
-'''
-h = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
-X = wbdcOri.atributos
-print("janela de pazen gaussian - wbdc")
-for i in h:
-    kde = KernelDensity(kernel='gaussian', bandwidth=i).fit(X)
-    bWbdcPazen = Base(copy.deepcopy(wbdcOri.classes),kde.score_samples(X))
-    m1,m2 = separarElementosPorClasse(bWbdcPazen, ["M","B"])
-    v1 = np.var(m1)
-    v2 = np.var(m2)
-    m1 = np.mean(m1, axis=0)
-    m2 = np.mean(m2, axis=0)
-    print("h:%s - erro:%s"%(i,NaiveBayes.classificar(m1, m2, v1, v2, bWbdcPazen, ["M","B"],"u")))
-print("janela de pazen gaussian - wpdc")
-X = WpdcOri.atributos
-for e in h:
-    kde = KernelDensity(kernel='gaussian', bandwidth=i).fit(X)
-    bWbdcPazen = Base(copy.deepcopy(WpdcOri.classes),kde.score_samples(X))
-    m1,m2 = separarElementosPorClasse(bWbdcPazen, ["N","R"])
-    v1 = np.var(m1)
-    v2 = np.var(m2)
-    m1 = np.mean(m1, axis=0)
-    m2 = np.mean(m2, axis=0)
-    print("h:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2,bWbdcPazen,["N","R"],"u")))
-#Q4
-print("janela de pazen retângular - wbdc")
-X = WpdcOri.atributos
-for e in h:
-    kde = KernelDensity(kernel='tophat', bandwidth=i).fit(X)
-    bWbdcPazen = Base(copy.deepcopy(WpdcOri.classes),kde.score_samples(X))
-    m1,m2 = separarElementosPorClasse(bWbdcPazen, ["N","R"])
-    v1 = np.var(m1)
-    v2 = np.var(m2)
-    m1 = np.mean(m1, axis=0)
-    m2 = np.mean(m2, axis=0)
-    print("h:%s - erro:%s"%(e,NaiveBayes.classificar(m1, m2, v1, v2,bWbdcPazen,["N","R"],"u")))
-b = pcaScore(cancerOri,0,["2","4"])
-b1 = pca(WpdcOri,0)
-b2 = pca(wbdcOri)
-print("erro base cancer(EuclidianaPCA):%s"%classicarKNN(b))
-'''
 
 h = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
 m1,m2 = separarElementosPorClasse2(wbdcOri, ["M","B"])
@@ -158,6 +115,24 @@ for i in h:
 print("naive com janela de parzen retangular - wpdc")
 for i in h:
     print("h:%s erro:%s"%(i,NaiveBayes.classificarParzen(WpdcOri, mp1, mp2, i, ["N","R"])))
+
+#Q6
+wbdcPCA = pca(wbdcOri, len(wbdcOri.atributos[0])-1)
+m1,m2 = separarElementosPorClasse(wbdcPCA, ["M","B"])
+v1 = np.var(m1)
+v2 = np.var(m2)
+m1 = np.mean(m1, axis=0)
+m2 = np.mean(m2, axis=0)
+print("erro wbdc naiveBayes univariado:%s"%NaiveBayes.classificar(m1, m2, v1, v2, wbdcPCA,["M","B"],"u"))
+
+WpdcPCA = pca(WpdcOri,len(WpdcOri.atributos[0])-1)
+m1,m2 = separarElementosPorClasse(WpdcPCA, ["N","R"])
+v1 = np.var(m1)
+v2 = np.var(m2)
+m1 = np.mean(m1, axis=0)
+m2 = np.mean(m2, axis=0)
+print("erro wpdc naiveBayes univariado:%s"%NaiveBayes.classificar(m1, m2, v1, v2, WpdcPCA,["N","R"],"u"))
+
 
 
 
