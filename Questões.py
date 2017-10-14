@@ -64,6 +64,7 @@ wbdcOriSort = Base(copy.deepcopy(baseWbcd.classes),copy.deepcopy(baseWbcd.atribu
 WpdcOriSort = Base(copy.deepcopy(baseWpdc.classes),copy.deepcopy(baseWpdc.atributos)) 
 
 #Q1
+print("-------------primeira questao------------\n")
 print("erros 1-nn:")
 erro,pred,certa = KnnComHamming.calcular(baseCancer)
 print("erro base cancer(Hamming):%s"%erro)
@@ -77,6 +78,7 @@ print(confusion_matrix(certa,pred,["M","B"]))
 erro,pred,certa = classicarKNN(baseWpdc)
 print("erro base wpdc:%s"%erro)
 print(confusion_matrix(certa,pred,["N","R"]))
+print("---------------------Segunda Questao------------------------\n")
 #Q2
 baseCancer2 = Base(copy.deepcopy(cancerOri.classes),copy.deepcopy(cancerOri.atributos))
 m1,m2 = separarElementosPorClasse(baseCancer2, ["2","4"])
@@ -90,6 +92,7 @@ m2 = np.mean(m2, axis=0)
 print("erro naiveBayes cancer:%s"%NaiveBayes.classificar(m1, m2, v1, v2, baseCancer2, ["2","4"]))
 print(confusion_matrix(cancerOri.classes, baseCancer2.classes,["2","4"]))
 #Q3
+print("---------------------Terceira Questao------------------------\n")
 b = Base(copy.deepcopy(wbdcOri.classes),copy.deepcopy(wbdcOri.atributos))
 m1,m2 = separarElementosPorClasse(b, ["M","B"])
 v1 = np.cov(np.array(m1).T)
@@ -114,7 +117,7 @@ print(confusion_matrix(WpdcOri.classes, b.classes,["N","R"]))
 print("erro discretizacao wpdc - NAIVEBAYES")
 classificarNaiveDiscreto(WpdcOri,["N","R"], intervalos)
 #Q5
-
+print("---------------------Quinta e Sexta Questoes------------------------\n")
 h = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
 m1,m2 = separarElementosPorClasse2(wbdcOri, ["M","B"])
 mp1,mp2 = separarElementosPorClasse2(WpdcOri, ["N","R"])
@@ -139,8 +142,8 @@ for i in h:
     wpdcCopia = Base(copy.deepcopy(WpdcOri.classes),copy.deepcopy(WpdcOri.atributos))
     print("h:%s erro:%s"%(i,NaiveBayes.classificarParzen(wpdcCopia, mp1, mp2, i, ["N","R"])))
     print(confusion_matrix(WpdcOri.classes, wpdcCopia.classes,["N","R"]))
-
 #Q6
+print("---------------------Sexta Questao------------------------\n")
 wbdcPCA = pca(wbdcOri, len(wbdcOri.atributos[0])-1)
 m1,m2 = separarElementosPorClasse(wbdcPCA, ["M","B"])
 v1 = np.var(m1)

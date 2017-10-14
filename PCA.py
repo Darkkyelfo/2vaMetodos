@@ -9,7 +9,8 @@ from funcoesAuxiliares import separarElementosPorClasse
 import math
 import copy
 
-def pca (base,k=0):
+def pca (base1,k=0):
+    base = Base(copy.deepcopy(base1.classes),copy.deepcopy(base1.atributos))
     media = np.mean(np.array(base.atributos),axis=0)
     subtracao = np.array(copy.deepcopy(base.atributos))
     #cria a matriz de subtração
@@ -25,7 +26,8 @@ def pca (base,k=0):
     novosAtributos = np.dot(subtracao,np.array(autoVectors).T)
     return (Base(base.classes,novosAtributos))
 
-def pcaScore(base,k=0):
+def pcaScore(base1,k=0):
+    base = Base(copy.deepcopy(base1.classes),copy.deepcopy(base1.atributos))
     media = np.mean(np.array(base.atributos),axis=0)
     subtracao = np.array(copy.deepcopy(base.atributos))
     #cria a matriz de subtração
